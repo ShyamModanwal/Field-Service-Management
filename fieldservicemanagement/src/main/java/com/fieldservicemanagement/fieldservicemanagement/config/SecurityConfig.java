@@ -46,9 +46,13 @@ public class SecurityConfig {
 
                 CorsConfiguration configuration = new CorsConfiguration();
 
+                // Allow local frontend + deployed Vercel frontend
                 configuration.setAllowedOrigins(
-                                List.of("http://localhost:5173"));
+                                List.of(
+                                                "http://localhost:5173",
+                                                "https://field-service-management-mu.vercel.app"));
 
+                // Allowed HTTP methods
                 configuration.setAllowedMethods(
                                 List.of(
                                                 "GET",
@@ -58,9 +62,11 @@ public class SecurityConfig {
                                                 "PATCH",
                                                 "OPTIONS"));
 
+                // Allow all request headers
                 configuration.setAllowedHeaders(
                                 List.of("*"));
 
+                // Allow cookies/authentication information
                 configuration.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -97,39 +103,54 @@ public class SecurityConfig {
                         HttpSecurity http) throws Exception {
 
                 http
+
+                                // Disable CSRF because we are using JWT
                                 .csrf(csrf -> csrf.disable())
 
+                                // Enable CORS
                                 .cors(cors -> cors.configurationSource(
                                                 corsConfigurationSource()))
 
+                                // JWT based application -> no session
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(
                                                                 SessionCreationPolicy.STATELESS))
 
+                                // =================================================
+                                // AUTHORIZATION
+                                // =================================================
+
                                 .authorizeHttpRequests(auth -> auth
 
-                                                // CORS preflight request
-                                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
+                                                // CORS preflight requests
+                                                .requestMatchers(
+                                                                org.springframework.http.HttpMethod.OPTIONS,
+                                                                "/**")
                                                 .permitAll()
 
-                                                // Swagger public
+                                                // Swagger
                                                 .requestMatchers(
                                                                 "/swagger-ui/**",
                                                                 "/swagger-ui.html",
                                                                 "/v3/api-docs/**")
                                                 .permitAll()
 
-                                                // Login public
-                                                .requestMatchers("/api/auth/login")
+                                                // Login
+                                                .requestMatchers(
+                                                                "/api/auth/login")
                                                 .permitAll()
 
-                                                // User creation public
-                                                .requestMatchers("/api/users")
+                                                // User registration
+                                                .requestMatchers(
+                                                                "/api/users")
                                                 .permitAll()
 
                                                 // Everything else requires JWT
-                                                .anyRequest()
-                                                .authenticated())
+                                                .anyRequest().authenticated())
+
+                                // =================================================
+                                // UNAUTHORIZED RESPONSE
+                                // =================================================
 
                                 .exceptionHandling(exception -> exception
                                                 .authenticationEntryPoint(
@@ -144,6 +165,10 @@ public class SecurityConfig {
                                                                         response.getWriter().write(
                                                                                         "{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
                                                                 }))
+
+                                // =================================================
+                                // JWT FILTER
+                                // =================================================
 
                                 .addFilterBefore(
                                                 jwtAuthenticationFilter,
