@@ -33,7 +33,7 @@ function Parts() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080/api/parts",
+        "https://confident-ambition-production-7bdb.up.railway.app/api/parts",
         {
           method: "GET",
 
@@ -263,8 +263,8 @@ function Parts() {
     try {
 
       const url = editingPart
-        ? `http://localhost:8080/api/parts/${editingPart.id}`
-        : "http://localhost:8080/api/parts";
+        ? `https://confident-ambition-production-7bdb.up.railway.app/api/parts/${editingPart.id}`
+        : "https://confident-ambition-production-7bdb.up.railway.app/api/parts";
 
 
       const method = editingPart
@@ -345,7 +345,7 @@ function Parts() {
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/parts/${id}`,
+        `https://confident-ambition-production-7bdb.up.railway.app/api/parts/${id}`,
         {
           method: "DELETE",
 

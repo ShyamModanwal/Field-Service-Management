@@ -26,7 +26,7 @@ function Sites() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080/api/customers/sites",
+        "https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites",
         {
           method: "GET",
           headers: {
@@ -171,14 +171,14 @@ function Sites() {
       if (editingSite) {
 
         url =
-          `http://localhost:8080/api/customers/sites/${editingSite.id}`;
+          `https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites/${editingSite.id}`;
 
         method = "PUT";
 
       } else {
 
         url =
-          `http://localhost:8080/api/customers/${customerId}/sites`;
+          `https://confident-ambition-production-7bdb.up.railway.app/api/customers/${customerId}/sites`;
 
         method = "POST";
       }
@@ -249,7 +249,7 @@ function Sites() {
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/customers/sites/${id}`,
+        `https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites/${id}`,
         {
           method: "DELETE",
 

@@ -41,7 +41,7 @@ function App() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080/api/auth/login",
+        "https://confident-ambition-production-7bdb.up.railway.app/api/auth/login",
         {
           method: "POST",
 

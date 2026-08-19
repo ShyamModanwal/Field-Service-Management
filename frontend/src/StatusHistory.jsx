@@ -29,7 +29,7 @@ function StatusHistory() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080/api/work-orders",
+        "https://confident-ambition-production-7bdb.up.railway.app/api/work-orders",
         {
           method: "GET",
 
@@ -121,7 +121,7 @@ function StatusHistory() {
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/work-orders/${workOrderId}/history`,
+        `https://confident-ambition-production-7bdb.up.railway.app/api/work-orders/${workOrderId}/history`,
         {
           method: "GET",
 
@@ -210,7 +210,7 @@ function StatusHistory() {
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/work-orders/${selectedWorkOrder}/status`,
+        `https://confident-ambition-production-7bdb.up.railway.app/api/work-orders/${selectedWorkOrder}/status`,
         {
           method: "POST",
 
