@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -46,13 +45,11 @@ public class SecurityConfig {
 
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                // Allow local frontend + deployed Vercel frontend
                 configuration.setAllowedOrigins(
                                 List.of(
                                                 "http://localhost:5173",
                                                 "https://field-service-management-mu.vercel.app"));
 
-                // Allowed HTTP methods
                 configuration.setAllowedMethods(
                                 List.of(
                                                 "GET",
@@ -62,11 +59,9 @@ public class SecurityConfig {
                                                 "PATCH",
                                                 "OPTIONS"));
 
-                // Allow all request headers
                 configuration.setAllowedHeaders(
                                 List.of("*"));
 
-                // Allow cookies/authentication information
                 configuration.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -76,22 +71,6 @@ public class SecurityConfig {
                                 configuration);
 
                 return source;
-        }
-
-        // =========================================================
-        // PUBLIC ENDPOINTS
-        // =========================================================
-
-        @Bean
-        public WebSecurityCustomizer webSecurityCustomizer() {
-
-                return web -> web.ignoring()
-                                .requestMatchers(
-                                                "/api/users",
-                                                "/api/auth/login",
-                                                "/swagger-ui/**",
-                                                "/swagger-ui.html",
-                                                "/v3/api-docs/**");
         }
 
         // =========================================================
@@ -111,7 +90,7 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(
                                                 corsConfigurationSource()))
 
-                                // JWT based application -> no session
+                                // JWT based application
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(
                                                                 SessionCreationPolicy.STATELESS))
