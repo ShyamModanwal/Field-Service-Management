@@ -5,6 +5,7 @@ public class SiteResponseDTO {
     private Long id;
     private String siteName;
     private String address;
+    private Long customerId;
 
     public Long getId() {
         return id;
@@ -28,5 +29,13 @@ public class SiteResponseDTO {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 }

@@ -25,7 +25,9 @@ public class SiteService {
     private CustomerRepository customerRepository;
 
     // CREATE SITE
-    public SiteResponseDTO createSite(Long customerId, SiteRequestDTO requestDTO) {
+    public SiteResponseDTO createSite(
+            Long customerId,
+            SiteRequestDTO requestDTO) {
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(
@@ -35,18 +37,11 @@ public class SiteService {
 
         site.setSiteName(requestDTO.getSiteName());
         site.setAddress(requestDTO.getAddress());
-
         site.setCustomer(customer);
 
         Site savedSite = siteRepository.save(site);
 
-        SiteResponseDTO responseDTO = new SiteResponseDTO();
-
-        responseDTO.setId(savedSite.getId());
-        responseDTO.setSiteName(savedSite.getSiteName());
-        responseDTO.setAddress(savedSite.getAddress());
-
-        return responseDTO;
+        return convertToResponseDTO(savedSite);
     }
 
     // GET ALL SITES
@@ -58,13 +53,8 @@ public class SiteService {
 
         for (Site site : sites) {
 
-            SiteResponseDTO responseDTO = new SiteResponseDTO();
-
-            responseDTO.setId(site.getId());
-            responseDTO.setSiteName(site.getSiteName());
-            responseDTO.setAddress(site.getAddress());
-
-            responseList.add(responseDTO);
+            responseList.add(
+                    convertToResponseDTO(site));
         }
 
         return responseList;
@@ -77,47 +67,57 @@ public class SiteService {
                 .orElseThrow(() -> new SiteNotFoundException(
                         "Site not found with id: " + id));
 
+        return convertToResponseDTO(site);
+    }
+
+    // UPDATE SITE
+    public SiteResponseDTO updateSite(
+            Long id,
+            SiteRequestDTO requestDTO) {
+
+        Site site = siteRepository.findById(id)
+                .orElseThrow(() -> new SiteNotFoundException(
+                        "Site not found with id: " + id));
+
+        site.setSiteName(requestDTO.getSiteName());
+        site.setAddress(requestDTO.getAddress());
+
+        Site updatedSite = siteRepository.save(site);
+
+        return convertToResponseDTO(updatedSite);
+    }
+
+    // DELETE SITE
+    public void deleteSite(Long id) {
+
+        if (!siteRepository.existsById(id)) {
+
+            throw new SiteNotFoundException(
+                    "Site not found with id: " + id);
+        }
+
+        siteRepository.deleteById(id);
+    }
+
+    // =========================================================
+    // ENTITY -> RESPONSE DTO
+    // =========================================================
+
+    private SiteResponseDTO convertToResponseDTO(
+            Site site) {
+
         SiteResponseDTO responseDTO = new SiteResponseDTO();
 
         responseDTO.setId(site.getId());
         responseDTO.setSiteName(site.getSiteName());
         responseDTO.setAddress(site.getAddress());
 
+        if (site.getCustomer() != null) {
+
+            responseDTO.setCustomerId(
+                    site.getCustomer().getId());
+        }
+
         return responseDTO;
     }
-
-    public SiteResponseDTO updateSite(Long id, SiteRequestDTO requestDTO) {
-
-        // 1. Find existing site
-        Site site = siteRepository.findById(id)
-                .orElseThrow(() -> new SiteNotFoundException(
-                        "Site not found with id: " + id));
-
-        // 2. Update data
-        site.setSiteName(requestDTO.getSiteName());
-        site.setAddress(requestDTO.getAddress());
-
-        // 3. Save updated site
-        Site updatedSite = siteRepository.save(site);
-
-        // 4. Convert Entity to ResponseDTO
-        SiteResponseDTO responseDTO = new SiteResponseDTO();
-
-        responseDTO.setId(updatedSite.getId());
-        responseDTO.setSiteName(updatedSite.getSiteName());
-        responseDTO.setAddress(updatedSite.getAddress());
-
-        // 5. Return response
-        return responseDTO;
-    }
-    // DELETE SITE
-public void deleteSite(Long id) {
-
-    if (!siteRepository.existsById(id)) {
-        throw new SiteNotFoundException(
-                "Site not found with id: " + id);
-    }
-
-    siteRepository.deleteById(id);
-}
 }
