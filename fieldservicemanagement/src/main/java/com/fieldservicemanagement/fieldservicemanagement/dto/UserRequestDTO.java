@@ -20,8 +20,14 @@ public class UserRequestDTO {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
+    private Long customerId;
+
     public UserRequestDTO() {
     }
+
+    // =========================================================
+    // NAME
+    // =========================================================
 
     public String getName() {
         return name;
@@ -31,6 +37,10 @@ public class UserRequestDTO {
         this.name = name;
     }
 
+    // =========================================================
+    // EMAIL
+    // =========================================================
+
     public String getEmail() {
         return email;
     }
@@ -38,6 +48,10 @@ public class UserRequestDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    // =========================================================
+    // ROLE
+    // =========================================================
 
     public String getRole() {
         return role;
@@ -47,11 +61,27 @@ public class UserRequestDTO {
         this.role = role;
     }
 
+    // =========================================================
+    // PASSWORD
+    // =========================================================
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    // =========================================================
+    // CUSTOMER ID
+    // =========================================================
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 }

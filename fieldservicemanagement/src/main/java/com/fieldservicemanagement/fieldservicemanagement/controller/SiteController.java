@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.fieldservicemanagement.fieldservicemanagement.dto.SiteRequestDTO;
@@ -20,51 +21,55 @@ public class SiteController {
 
     // CREATE SITE
     @PostMapping("/{customerId}/sites")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<SiteResponseDTO> createSite(
             @PathVariable Long customerId,
             @RequestBody SiteRequestDTO requestDTO) {
 
-        SiteResponseDTO responseDTO = siteService.createSite(customerId, requestDTO);
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                siteService.createSite(customerId, requestDTO),
+                HttpStatus.CREATED);
     }
 
     // GET ALL SITES
     @GetMapping("/sites")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
     public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
 
-        List<SiteResponseDTO> sites = siteService.getAllSites();
-
-        return new ResponseEntity<>(sites, HttpStatus.OK);
+        return ResponseEntity.ok(
+                siteService.getAllSites());
     }
 
     // GET SITE BY ID
     @GetMapping("/sites/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
     public ResponseEntity<SiteResponseDTO> getSiteById(
             @PathVariable Long id) {
 
-        SiteResponseDTO responseDTO = siteService.getSiteById(id);
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        return ResponseEntity.ok(
+                siteService.getSiteById(id));
     }
 
+    // UPDATE SITE
     @PutMapping("/sites/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<SiteResponseDTO> updateSite(
             @PathVariable Long id,
             @RequestBody SiteRequestDTO requestDTO) {
 
-        SiteResponseDTO responseDTO = siteService.updateSite(id, requestDTO);
-
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(
+                siteService.updateSite(id, requestDTO));
     }
 
     // DELETE SITE
     @DeleteMapping("/sites/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<String> deleteSite(
             @PathVariable Long id) {
 
         siteService.deleteSite(id);
 
-        return ResponseEntity.ok("Site deleted successfully");
+        return ResponseEntity.ok(
+                "Site deleted successfully");
     }
 }

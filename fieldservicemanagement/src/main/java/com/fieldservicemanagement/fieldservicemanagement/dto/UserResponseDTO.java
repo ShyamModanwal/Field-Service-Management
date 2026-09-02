@@ -6,9 +6,14 @@ public class UserResponseDTO {
     private String name;
     private String email;
     private String role;
+    private Long customerId;
 
     public UserResponseDTO() {
     }
+
+    // =========================================================
+    // ID
+    // =========================================================
 
     public Long getId() {
         return id;
@@ -18,6 +23,10 @@ public class UserResponseDTO {
         this.id = id;
     }
 
+    // =========================================================
+    // NAME
+    // =========================================================
+
     public String getName() {
         return name;
     }
@@ -25,6 +34,10 @@ public class UserResponseDTO {
     public void setName(String name) {
         this.name = name;
     }
+
+    // =========================================================
+    // EMAIL
+    // =========================================================
 
     public String getEmail() {
         return email;
@@ -34,11 +47,27 @@ public class UserResponseDTO {
         this.email = email;
     }
 
+    // =========================================================
+    // ROLE
+    // =========================================================
+
     public String getRole() {
         return role;
     }
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    // =========================================================
+    // CUSTOMER ID
+    // =========================================================
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 }

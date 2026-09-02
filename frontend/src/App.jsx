@@ -7,7 +7,7 @@ import WorkOrders from "./WorkOrders";
 import CreateWorkOrder from "./CreateWorkOrder";
 import Parts from "./Parts";
 import TechnicianKanban from "./TechnicianKanban";
-
+import Notifications from "./Notifications";
 
 function App() {
 
@@ -22,13 +22,19 @@ function App() {
     !!localStorage.getItem("token")
   );
 
-
   // =========================================================
   // PAGE NAVIGATION
   // =========================================================
 
   const [currentPage, setCurrentPage] = useState("dashboard");
 
+  // =========================================================
+  // USER INFORMATION
+  // =========================================================
+
+  const userEmail = localStorage.getItem("email");
+  const userRole = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
 
   // =========================================================
   // LOGIN
@@ -41,34 +47,66 @@ function App() {
     try {
 
       const response = await fetch(
-  "https://confident-ambition-production-7bdb.up.railway.app/api/auth/login",
-  {
-    method: "POST",
+    "https://confident-ambition-production-7bdb.up.railway.app/api/auth/login",
+        {
+          method: "POST",
 
-    headers: {
-      "Content-Type": "application/json"
-    },
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-    body: JSON.stringify({
-      email: email,
-      password: password
-    })
-  }
-);
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        }
+      );
 
-      const data = await response.json();
+      // =====================================================
+      // READ RESPONSE
+      // =====================================================
 
+      const responseText = await response.text();
+
+      console.log("Login Status:", response.status);
+      console.log("Login Response:", responseText);
+
+      // =====================================================
+      // LOGIN ERROR
+      // =====================================================
 
       if (!response.ok) {
 
-        alert(data.message || "Login failed");
+        let errorMessage = "Login failed";
+
+        try {
+
+          const errorData = JSON.parse(responseText);
+
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            "Login failed";
+
+        } catch {
+
+          errorMessage =
+            responseText || "Login failed";
+        }
+
+        alert(errorMessage);
 
         return;
       }
 
+      // =====================================================
+      // LOGIN SUCCESS
+      // =====================================================
+
+      const data = JSON.parse(responseText);
 
       // =====================================================
-      // SAVE LOGIN INFORMATION
+      // SAVE USER INFORMATION
       // =====================================================
 
       localStorage.setItem("token", data.token);
@@ -76,27 +114,21 @@ function App() {
       localStorage.setItem("email", data.email);
       localStorage.setItem("role", data.role);
 
-
       alert("Login successful!");
-
 
       setIsLoggedIn(true);
 
       setCurrentPage("dashboard");
-
 
     } catch (error) {
 
       console.error("Login Error:", error);
 
       alert(
-        "Unable to connect to server. Make sure Spring Boot is running."
+        "Unable to connect to server. Please try again."
       );
-
     }
-
   };
-
 
   // =========================================================
   // LOGOUT
@@ -114,22 +146,8 @@ function App() {
     setCurrentPage("dashboard");
 
     setEmail("");
-
     setPassword("");
-
   };
-
-
-  // =========================================================
-  // USER INFORMATION
-  // =========================================================
-
-  const userEmail = localStorage.getItem("email");
-
-  const userRole = localStorage.getItem("role");
-
-  const userId = localStorage.getItem("userId");
-
 
   // =========================================================
   // COMMON HEADER
@@ -153,7 +171,6 @@ function App() {
 
         </div>
 
-
         <div className="header-actions">
 
           <div className="logged-user">
@@ -168,7 +185,6 @@ function App() {
 
           </div>
 
-
           <button
             className="logout-button"
             onClick={handleLogout}
@@ -179,11 +195,8 @@ function App() {
         </div>
 
       </header>
-
     );
-
   };
-
 
   // =========================================================
   // COMMON BACK BUTTON
@@ -205,11 +218,8 @@ function App() {
         </button>
 
       </div>
-
     );
-
   };
-
 
   // =========================================================
   // SITES PAGE
@@ -231,11 +241,8 @@ function App() {
         <Sites />
 
       </div>
-
     );
-
   }
-
 
   // =========================================================
   // WORK ORDERS PAGE
@@ -257,11 +264,8 @@ function App() {
         <WorkOrders />
 
       </div>
-
     );
-
   }
-
 
   // =========================================================
   // CREATE WORK ORDER PAGE
@@ -293,11 +297,8 @@ function App() {
         />
 
       </div>
-
     );
-
   }
-
 
   // =========================================================
   // PARTS PAGE
@@ -319,11 +320,8 @@ function App() {
         <Parts />
 
       </div>
-
     );
-
   }
-
 
   // =========================================================
   // TECHNICIAN KANBAN PAGE
@@ -345,11 +343,31 @@ function App() {
         <TechnicianKanban />
 
       </div>
-
     );
-
   }
 
+  // =========================================================
+  // NOTIFICATIONS PAGE
+  // =========================================================
+
+  if (
+    isLoggedIn &&
+    currentPage === "notifications"
+  ) {
+
+    return (
+
+      <div>
+
+        <DashboardHeader />
+
+        <BackToDashboard />
+
+        <Notifications />
+
+      </div>
+    );
+  }
 
   // =========================================================
   // DASHBOARD
@@ -361,15 +379,12 @@ function App() {
 
       <div className="dashboard-page">
 
-
         <DashboardHeader />
-
 
         <main className="dashboard-content">
 
-
           {/* =================================================
-              WELCOME
+              WELCOME SECTION
           ================================================= */}
 
           <div className="welcome-section">
@@ -379,12 +394,11 @@ function App() {
             </h2>
 
             <p>
-              You are successfully logged in to the
-              Field Service Management System.
+              Manage your field service activities
+              from your dashboard.
             </p>
 
           </div>
-
 
           {/* =================================================
               ACCOUNT INFORMATION
@@ -396,9 +410,7 @@ function App() {
               Account Information
             </h3>
 
-
             <div className="user-info">
-
 
               <div>
 
@@ -412,7 +424,6 @@ function App() {
 
               </div>
 
-
               <div>
 
                 <span>
@@ -424,7 +435,6 @@ function App() {
                 </strong>
 
               </div>
-
 
               <div>
 
@@ -438,211 +448,502 @@ function App() {
 
               </div>
 
-
             </div>
 
           </div>
-
 
           {/* =================================================
-              DASHBOARD CARDS
+              ADMIN DASHBOARD
           ================================================= */}
 
-          <div className="dashboard-grid">
+          {userRole === "ADMIN" && (
 
+            <>
 
-            {/* =================================================
-                SITES
-            ================================================= */}
+              <div className="dashboard-section-title">
 
-            <div className="dashboard-card">
+                <h2>
+                  Admin Dashboard
+                </h2>
 
-              <div className="card-icon">
-                📍
+                <p>
+                  Manage the complete field service system.
+                </p>
+
               </div>
 
-              <h3>
-                Sites
-              </h3>
+              <div className="dashboard-grid">
 
-              <p>
-                Manage customer locations and
-                service sites.
-              </p>
+                {/* SITES */}
 
-              <button
-                onClick={() =>
-                  setCurrentPage("sites")
-                }
-              >
-                Manage Sites
-              </button>
+                <div className="dashboard-card">
 
-            </div>
+                  <div className="card-icon">
+                    📍
+                  </div>
 
+                  <h3>
+                    Sites
+                  </h3>
 
-            {/* =================================================
-                WORK ORDERS
-            ================================================= */}
+                  <p>
+                    Manage customer locations and
+                    service sites.
+                  </p>
 
-            <div className="dashboard-card">
+                  <button
+                    onClick={() =>
+                      setCurrentPage("sites")
+                    }
+                  >
+                    Manage Sites
+                  </button>
 
-              <div className="card-icon">
-                📋
+                </div>
+
+                {/* WORK ORDERS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    📋
+                  </div>
+
+                  <h3>
+                    Work Orders
+                  </h3>
+
+                  <p>
+                    View and manage all work orders
+                    in the system.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View Work Orders
+                  </button>
+
+                </div>
+
+                {/* CREATE WORK ORDER */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    ➕
+                  </div>
+
+                  <h3>
+                    Create Work Order
+                  </h3>
+
+                  <p>
+                    Create a new work order and
+                    assign it to a technician.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("create-workorder")
+                    }
+                  >
+                    Create Work Order
+                  </button>
+
+                </div>
+
+                {/* PARTS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🔧
+                  </div>
+
+                  <h3>
+                    Parts
+                  </h3>
+
+                  <p>
+                    Manage parts and track part
+                    usage for work orders.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("parts")
+                    }
+                  >
+                    Manage Parts
+                  </button>
+
+                </div>
+
+                {/* TECHNICIAN KANBAN */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🧑‍🔧
+                  </div>
+
+                  <h3>
+                    Technician Kanban
+                  </h3>
+
+                  <p>
+                    Monitor technician work orders
+                    using the Kanban board.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("technician-kanban")
+                    }
+                  >
+                    Open Kanban
+                  </button>
+
+                </div>
+
+                {/* STATUS & HISTORY */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    📊
+                  </div>
+
+                  <h3>
+                    Status & History
+                  </h3>
+
+                  <p>
+                    Track work order status and
+                    status history.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View History
+                  </button>
+
+                </div>
+
+                {/* NOTIFICATIONS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🔔
+                  </div>
+
+                  <h3>
+                    Notifications
+                  </h3>
+
+                  <p>
+                    View SLA breach alerts and
+                    important notifications.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("notifications")
+                    }
+                  >
+                    View Notifications
+                  </button>
+
+                </div>
+
               </div>
 
-              <h3>
-                Work Orders
-              </h3>
+            </>
+          )}
 
-              <p>
-                Create, view, update and manage
-                field service work orders.
-              </p>
+          {/* =================================================
+              TECHNICIAN DASHBOARD
+          ================================================= */}
 
-              <button
-                onClick={() =>
-                  setCurrentPage("workorders")
-                }
-              >
-                View Work Orders
-              </button>
+          {userRole === "TECHNICIAN" && (
 
-            </div>
+            <>
 
+              <div className="dashboard-section-title">
 
-            {/* =================================================
-                CREATE WORK ORDER
-            ================================================= */}
+                <h2>
+                  Technician Dashboard
+                </h2>
 
-            <div className="dashboard-card">
+                <p>
+                  View and manage your assigned field work.
+                </p>
 
-              <div className="card-icon">
-                ➕
               </div>
 
-              <h3>
-                Create Work Order
-              </h3>
+              <div className="dashboard-grid">
 
-              <p>
-                Create a new work order and
-                assign it to a technician.
-              </p>
+                {/* MY WORK ORDERS */}
 
-              <button
-                onClick={() =>
-                  setCurrentPage("create-workorder")
-                }
-              >
-                Create Work Order
-              </button>
+                <div className="dashboard-card">
 
-            </div>
+                  <div className="card-icon">
+                    📋
+                  </div>
 
+                  <h3>
+                    My Work Orders
+                  </h3>
 
-            {/* =================================================
-                PARTS
-            ================================================= */}
+                  <p>
+                    View work orders assigned
+                    to you.
+                  </p>
 
-            <div className="dashboard-card">
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View My Orders
+                  </button>
 
-              <div className="card-icon">
-                🔧
+                </div>
+
+                {/* MY KANBAN */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🧑‍🔧
+                  </div>
+
+                  <h3>
+                    My Kanban
+                  </h3>
+
+                  <p>
+                    Manage your assigned work
+                    using the Kanban board.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("technician-kanban")
+                    }
+                  >
+                    Open Kanban
+                  </button>
+
+                </div>
+
+                {/* STATUS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    📊
+                  </div>
+
+                  <h3>
+                    My Status & History
+                  </h3>
+
+                  <p>
+                    Track the status and history
+                    of your work orders.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View Status
+                  </button>
+
+                </div>
+
+                {/* NOTIFICATIONS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🔔
+                  </div>
+
+                  <h3>
+                    My Notifications
+                  </h3>
+
+                  <p>
+                    View your SLA alerts and
+                    work order notifications.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("notifications")
+                    }
+                  >
+                    View Notifications
+                  </button>
+
+                </div>
+
               </div>
 
-              <h3>
-                Parts
-              </h3>
+            </>
+          )}
 
-              <p>
-                Manage parts and track part
-                usage for work orders.
-              </p>
+          {/* =================================================
+              CUSTOMER DASHBOARD
+          ================================================= */}
 
-              <button
-                onClick={() =>
-                  setCurrentPage("parts")
-                }
-              >
-                Manage Parts
-              </button>
+          {userRole === "CUSTOMER" && (
 
-            </div>
+            <>
 
+              <div className="dashboard-section-title">
 
-            {/* =================================================
-                TECHNICIAN KANBAN
-            ================================================= */}
+                <h2>
+                  Customer Dashboard
+                </h2>
 
-            <div className="dashboard-card">
+                <p>
+                  View your service requests and
+                  work order information.
+                </p>
 
-              <div className="card-icon">
-                🧑‍🔧
               </div>
 
-              <h3>
-                Technician Kanban
-              </h3>
+              <div className="dashboard-grid">
 
-              <p>
-                View assigned work orders in a
-                technician-friendly Kanban board.
-              </p>
+                {/* MY SITES */}
 
-              <button
-                onClick={() =>
-                  setCurrentPage("technician-kanban")
-                }
-              >
-                Open Kanban
-              </button>
+                <div className="dashboard-card">
 
-            </div>
+                  <div className="card-icon">
+                    📍
+                  </div>
 
+                  <h3>
+                    My Sites
+                  </h3>
 
-            {/* =================================================
-                STATUS & HISTORY
-            ================================================= */}
+                  <p>
+                    View your registered service
+                    locations.
+                  </p>
 
-            <div className="dashboard-card">
+                  <button
+                    onClick={() =>
+                      setCurrentPage("sites")
+                    }
+                  >
+                    View My Sites
+                  </button>
 
-              <div className="card-icon">
-                📊
+                </div>
+
+                {/* MY WORK ORDERS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    📋
+                  </div>
+
+                  <h3>
+                    My Work Orders
+                  </h3>
+
+                  <p>
+                    View work orders related
+                    to your service requests.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View My Orders
+                  </button>
+
+                </div>
+
+                {/* STATUS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    📊
+                  </div>
+
+                  <h3>
+                    Status & History
+                  </h3>
+
+                  <p>
+                    Track the current status and
+                    history of your work orders.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("workorders")
+                    }
+                  >
+                    View Status
+                  </button>
+
+                </div>
+
+                {/* NOTIFICATIONS */}
+
+                <div className="dashboard-card">
+
+                  <div className="card-icon">
+                    🔔
+                  </div>
+
+                  <h3>
+                    Notifications
+                  </h3>
+
+                  <p>
+                    View important updates about
+                    your service requests.
+                  </p>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage("notifications")
+                    }
+                  >
+                    View Notifications
+                  </button>
+
+                </div>
+
               </div>
 
-              <h3>
-                Status & History
-              </h3>
-
-              <p>
-                Track work order status and
-                status history.
-              </p>
-
-              <button
-                onClick={() =>
-                  setCurrentPage("workorders")
-                }
-              >
-                View History
-              </button>
-
-            </div>
-
-
-          </div>
-
+            </>
+          )}
 
         </main>
 
-
       </div>
-
     );
-
   }
-
 
   // =========================================================
   // LOGIN PAGE
@@ -652,9 +953,7 @@ function App() {
 
     <div className="login-page">
 
-
       <div className="login-card">
-
 
         <div className="login-header">
 
@@ -668,9 +967,7 @@ function App() {
 
         </div>
 
-
         <form onSubmit={handleLogin}>
-
 
           {/* EMAIL */}
 
@@ -692,7 +989,6 @@ function App() {
 
           </div>
 
-
           {/* PASSWORD */}
 
           <div className="form-group">
@@ -713,23 +1009,16 @@ function App() {
 
           </div>
 
-
           <button type="submit">
             Login
           </button>
 
-
         </form>
-
 
       </div>
 
-
     </div>
-
   );
-
 }
-
 
 export default App;

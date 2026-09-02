@@ -48,12 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
-        // User creation
-        if (path.equals("/api/users")
-                || path.startsWith("/api/users/")) {
-            return true;
-        }
-
+        
         // Swagger UI
         if (path.startsWith("/swagger-ui/")) {
             return true;

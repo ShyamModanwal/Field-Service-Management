@@ -7,5 +7,9 @@ import java.util.List;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
 
+    // Technician ke assigned work orders
     List<WorkOrder> findByAssignedToId(Long userId);
+
+    // Customer ke sirf apne work orders
+    List<WorkOrder> findByCustomerId(Long customerId);
 }

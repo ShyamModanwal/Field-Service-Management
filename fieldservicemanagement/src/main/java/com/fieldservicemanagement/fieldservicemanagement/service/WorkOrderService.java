@@ -114,7 +114,7 @@ public class WorkOrderService {
 
                 String role = loggedInUser.getRole();
 
-                // ADMIN aur MANAGER sabhi work orders dekh sakte hain
+                // ADMIN / MANAGER -> saare work orders
                 if ("ADMIN".equalsIgnoreCase(role)
                                 || "MANAGER".equalsIgnoreCase(role)) {
 
@@ -124,11 +124,29 @@ public class WorkOrderService {
                                         .toList();
                 }
 
-                // TECHNICIAN sirf apne assigned work orders dekhega
+                // TECHNICIAN -> sirf assigned work orders
                 if ("TECHNICIAN".equalsIgnoreCase(role)) {
 
                         return workOrderRepository
                                         .findByAssignedToId(loggedInUser.getId())
+                                        .stream()
+                                        .map(this::convertToResponseDTO)
+                                        .toList();
+                }
+
+                // CUSTOMER -> sirf apne customer ke work orders
+                if ("CUSTOMER".equalsIgnoreCase(role)) {
+
+                        if (loggedInUser.getCustomer() == null) {
+
+                                throw new RuntimeException(
+                                                "Customer account is not linked with any customer");
+                        }
+
+                        Long customerId = loggedInUser.getCustomer().getId();
+
+                        return workOrderRepository
+                                        .findByCustomerId(customerId)
                                         .stream()
                                         .map(this::convertToResponseDTO)
                                         .toList();
@@ -205,10 +223,29 @@ public class WorkOrderService {
                 // Sirf authorized roles ko access
                 if (!"ADMIN".equalsIgnoreCase(role)
                                 && !"MANAGER".equalsIgnoreCase(role)
-                                && !"TECHNICIAN".equalsIgnoreCase(role)) {
+                                && !"TECHNICIAN".equalsIgnoreCase(role)
+                                && !"CUSTOMER".equalsIgnoreCase(role)) {
 
                         throw new RuntimeException(
                                         "You are not authorized to view this work order");
+                }
+                // CUSTOMER
+                if ("CUSTOMER".equalsIgnoreCase(role)) {
+
+                        if (loggedInUser.getCustomer() == null) {
+
+                                throw new RuntimeException(
+                                                "Customer account is not linked with any customer");
+                        }
+
+                        if (workOrder.getCustomer() == null
+                                        || !workOrder.getCustomer()
+                                                        .getId()
+                                                        .equals(loggedInUser.getCustomer().getId())) {
+
+                                throw new RuntimeException(
+                                                "Customer can only view their own work orders");
+                        }
                 }
 
                 return convertToResponseDTO(workOrder);
@@ -222,15 +259,42 @@ public class WorkOrderService {
                         Long id,
                         WorkOrderRequestDTO requestDTO) {
 
+                // =========================================================
+                // FIND WORK ORDER
+                // =========================================================
+
                 WorkOrder existingWorkOrder = workOrderRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException(
-                                                "Work Order not found with id: "
-                                                                + id));
+                                                "Work Order not found with id: " + id));
+
+                // =========================================================
+                // GET LOGGED-IN USER
+                // =========================================================
+
                 User loggedInUser = getLoggedInUser();
 
                 String role = loggedInUser.getRole();
 
+                // =========================================================
+                // CHECK AUTHORIZATION
+                // =========================================================
+
+                if (!"ADMIN".equalsIgnoreCase(role)
+                                && !"MANAGER".equalsIgnoreCase(role)
+                                && !"TECHNICIAN".equalsIgnoreCase(role)) {
+
+                        throw new RuntimeException(
+                                        "You are not authorized to update work orders");
+                }
+
+                // =========================================================
+                // TECHNICIAN CHECK
+                // =========================================================
+
                 if ("TECHNICIAN".equalsIgnoreCase(role)) {
+
+                        // Technician sirf apne assigned work order ko update
+                        // kar sakta hai
 
                         if (existingWorkOrder.getAssignedTo() == null
                                         || !existingWorkOrder.getAssignedTo()
@@ -242,75 +306,105 @@ public class WorkOrderService {
                         }
                 }
 
-                if (!"ADMIN".equalsIgnoreCase(role)
-                                && !"MANAGER".equalsIgnoreCase(role)
-                                && !"TECHNICIAN".equalsIgnoreCase(role)) {
+                // =========================================================
+                // CLOSED / CANCELLED WORK ORDER
+                // =========================================================
 
-                        throw new RuntimeException(
-                                        "You are not authorized to update work orders");
-                }
-
-                // CLOSED aur CANCELLED work order immutable hai
-                if ("CLOSED".equals(existingWorkOrder.getStatus())
-                                || "CANCELLED".equals(existingWorkOrder.getStatus())) {
+                if ("CLOSED".equalsIgnoreCase(existingWorkOrder.getStatus())
+                                || "CANCELLED".equalsIgnoreCase(existingWorkOrder.getStatus())) {
 
                         throw new RuntimeException(
                                         "Closed or cancelled work order cannot be edited");
                 }
 
-                existingWorkOrder.setCode(requestDTO.getCode());
-                existingWorkOrder.setTitle(requestDTO.getTitle());
+                // =========================================================
+                // BASIC DETAILS
+                // =========================================================
+
+                existingWorkOrder.setCode(
+                                requestDTO.getCode());
+
+                existingWorkOrder.setTitle(
+                                requestDTO.getTitle());
+
                 existingWorkOrder.setDescription(
                                 requestDTO.getDescription());
-                existingWorkOrder.setPriority(requestDTO.getPriority());
+
+                existingWorkOrder.setPriority(
+                                requestDTO.getPriority());
+
                 existingWorkOrder.setSlaDueAt(
                                 requestDTO.getSlaDueAt());
 
-                Customer customer = customerRepository.findById(
-                                requestDTO.getCustomerId())
-                                .orElseThrow(() -> new RuntimeException(
-                                                "Customer not found"));
+                // =========================================================
+                // ADMIN / MANAGER ONLY
+                // CUSTOMER + SITE + ASSIGNMENT
+                // =========================================================
 
-                Site site = siteRepository.findById(
-                                requestDTO.getSiteId())
-                                .orElseThrow(() -> new RuntimeException(
-                                                "Site not found"));
+                if ("ADMIN".equalsIgnoreCase(role)
+                                || "MANAGER".equalsIgnoreCase(role)) {
 
-                existingWorkOrder.setCustomer(customer);
-                existingWorkOrder.setSite(site);
+                        // -------------------------------------------------
+                        // CUSTOMER
+                        // -------------------------------------------------
 
-                // Assignment update
-                if (requestDTO.getAssignedToId() != null) {
-
-                        User user = userRepository.findById(
-                                        requestDTO.getAssignedToId())
+                        Customer customer = customerRepository.findById(
+                                        requestDTO.getCustomerId())
                                         .orElseThrow(() -> new RuntimeException(
-                                                        "User not found"));
+                                                        "Customer not found"));
 
-                        if (!"TECHNICIAN".equalsIgnoreCase(
-                                        user.getRole())) {
+                        existingWorkOrder.setCustomer(customer);
 
-                                throw new RuntimeException(
-                                                "Work Order can only be assigned to a TECHNICIAN");
+                        // -------------------------------------------------
+                        // SITE
+                        // -------------------------------------------------
+
+                        Site site = siteRepository.findById(
+                                        requestDTO.getSiteId())
+                                        .orElseThrow(() -> new RuntimeException(
+                                                        "Site not found"));
+
+                        existingWorkOrder.setSite(site);
+
+                        // -------------------------------------------------
+                        // ASSIGNMENT
+                        // -------------------------------------------------
+
+                        if (requestDTO.getAssignedToId() != null) {
+
+                                User user = userRepository.findById(
+                                                requestDTO.getAssignedToId())
+                                                .orElseThrow(() -> new RuntimeException(
+                                                                "User not found"));
+
+                                // Sirf TECHNICIAN ko assign kar sakte hain
+                                if (!"TECHNICIAN".equalsIgnoreCase(
+                                                user.getRole())) {
+
+                                        throw new RuntimeException(
+                                                        "Work Order can only be assigned to a TECHNICIAN");
+                                }
+
+                                existingWorkOrder.setAssignedTo(user);
+
+                        } else {
+
+                                existingWorkOrder.setAssignedTo(null);
                         }
-
-                        existingWorkOrder.setAssignedTo(user);
-
-                } else {
-
-                        existingWorkOrder.setAssignedTo(null);
                 }
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * Status ko yahan directly update nahi karenge.
-                 *
-                 * Status change ke liye dedicated
-                 * changeStatus() method use hoga.
-                 *
-                 * Isse lifecycle bypass nahi ho sakta.
-                 */
+                // =========================================================
+                // STATUS IS NOT UPDATED HERE
+                // =========================================================
+                //
+                // Status change ke liye dedicated /status API use hoga.
+                //
+                // Example:
+                // NEW → ASSIGNED
+                // ASSIGNED → IN_PROGRESS
+                // IN_PROGRESS → COMPLETED
+                //
+                // =========================================================
 
                 WorkOrder updatedWorkOrder = workOrderRepository.save(existingWorkOrder);
 
@@ -421,6 +515,16 @@ public class WorkOrderService {
 
                 String currentStatus = workOrder.getStatus();
 
+                // =========================================================
+                // REQUEST VALIDATION
+                // =========================================================
+
+                if (requestDTO == null) {
+
+                        throw new RuntimeException(
+                                        "Status request is required");
+                }
+
                 String newStatus = requestDTO.getStatus();
 
                 // Null / empty status check
@@ -430,7 +534,6 @@ public class WorkOrderService {
                         throw new RuntimeException(
                                         "New status is required");
                 }
-
                 // Status uppercase mein convert karna
                 newStatus = newStatus.trim().toUpperCase();
 
@@ -785,6 +888,30 @@ public class WorkOrderService {
                 String role = loggedInUser.getRole();
 
                 // =====================================================
+                // CUSTOMER
+                // =====================================================
+
+                if ("CUSTOMER".equalsIgnoreCase(role)) {
+
+                        // Customer account linked hona chahiye
+                        if (loggedInUser.getCustomer() == null) {
+
+                                throw new RuntimeException(
+                                                "Customer account is not linked with any customer");
+                        }
+
+                        // Work order ka customer same hona chahiye
+                        if (workOrder.getCustomer() == null
+                                        || !workOrder.getCustomer()
+                                                        .getId()
+                                                        .equals(loggedInUser.getCustomer().getId())) {
+
+                                throw new RuntimeException(
+                                                "Customer can only view history of their own work orders");
+                        }
+                }
+
+                // =====================================================
                 // TECHNICIAN
                 // =====================================================
 
@@ -806,7 +933,8 @@ public class WorkOrderService {
 
                 if (!"ADMIN".equalsIgnoreCase(role)
                                 && !"MANAGER".equalsIgnoreCase(role)
-                                && !"TECHNICIAN".equalsIgnoreCase(role)) {
+                                && !"TECHNICIAN".equalsIgnoreCase(role)
+                                && !"CUSTOMER".equalsIgnoreCase(role)) {
 
                         throw new RuntimeException(
                                         "You are not authorized to view work order history");

@@ -48,8 +48,11 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(
                                 List.of(
                                                 "http://localhost:5173",
+                                                "http://localhost:5174",
+                                                "http://localhost:5175",
+                                                "http://localhost:5176",
+                                                "http://localhost:5177",
                                                 "https://field-service-management-mu.vercel.app"));
-
                 configuration.setAllowedMethods(
                                 List.of(
                                                 "GET",
@@ -120,10 +123,8 @@ public class SecurityConfig {
                                                 .permitAll()
 
                                                 // User registration
-                                                .requestMatchers(
-                                                                "/api/users")
-                                                .permitAll()
-
+                                                .requestMatchers("/api/users")
+                                                .hasRole("ADMIN")
                                                 // Everything else requires JWT
                                                 .anyRequest().authenticated())
 

@@ -19,19 +19,33 @@ public class User {
 
     private String passwordHash;
 
+    // Customer ke saath relationship
+    // Sirf CUSTOMER role wale user ke liye customer set hoga
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
     // Default constructor
     public User() {
     }
 
     // Parameterized constructor
-    public User(String name, String email, String role, String passwordHash) {
+    public User(
+            String name,
+            String email,
+            String role,
+            String passwordHash) {
+
         this.name = name;
         this.email = email;
         this.role = role;
         this.passwordHash = passwordHash;
     }
 
-    // Getter and Setter for id
+    // =========================================================
+    // GETTER & SETTER - ID
+    // =========================================================
+
     public Long getId() {
         return id;
     }
@@ -40,7 +54,10 @@ public class User {
         this.id = id;
     }
 
-    // Getter and Setter for name
+    // =========================================================
+    // GETTER & SETTER - NAME
+    // =========================================================
+
     public String getName() {
         return name;
     }
@@ -49,7 +66,10 @@ public class User {
         this.name = name;
     }
 
-    // Getter and Setter for email
+    // =========================================================
+    // GETTER & SETTER - EMAIL
+    // =========================================================
+
     public String getEmail() {
         return email;
     }
@@ -58,7 +78,10 @@ public class User {
         this.email = email;
     }
 
-    // Getter and Setter for role
+    // =========================================================
+    // GETTER & SETTER - ROLE
+    // =========================================================
+
     public String getRole() {
         return role;
     }
@@ -67,12 +90,27 @@ public class User {
         this.role = role;
     }
 
-    // Getter and Setter for passwordHash
+    // =========================================================
+    // GETTER & SETTER - PASSWORD
+    // =========================================================
+
     public String getPasswordHash() {
         return passwordHash;
     }
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    // =========================================================
+    // GETTER & SETTER - CUSTOMER
+    // =========================================================
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
