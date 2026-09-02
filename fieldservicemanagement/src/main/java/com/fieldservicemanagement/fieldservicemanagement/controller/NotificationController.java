@@ -13,53 +13,53 @@ import java.util.List;
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+        private final NotificationService notificationService;
 
-    public NotificationController(
-            NotificationService notificationService) {
+        public NotificationController(
+                        NotificationService notificationService) {
 
-        this.notificationService = notificationService;
-    }
+                this.notificationService = notificationService;
+        }
 
-    // =========================================================
-    // GET ALL NOTIFICATIONS OF USER
-    // =========================================================
+        // =========================================================
+        // GET ALL NOTIFICATIONS OF USER
+        // =========================================================
 
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<List<NotificationResponseDTO>> getUserNotifications(
-            @PathVariable Long userId) {
+        @GetMapping("/user/{userId}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN' , 'CUSTOMER' , 'DISPATCHER')")
+        public ResponseEntity<List<NotificationResponseDTO>> getUserNotifications(
+                        @PathVariable Long userId) {
 
-        return ResponseEntity.ok(
-                notificationService
-                        .getUserNotifications(userId));
-    }
+                return ResponseEntity.ok(
+                                notificationService
+                                                .getUserNotifications(userId));
+        }
 
-    // =========================================================
-    // GET UNREAD NOTIFICATIONS
-    // =========================================================
+        // =========================================================
+        // GET UNREAD NOTIFICATIONS
+        // =========================================================
 
-    @GetMapping("/user/{userId}/unread")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<List<NotificationResponseDTO>> getUnreadNotifications(
-            @PathVariable Long userId) {
+        @GetMapping("/user/{userId}/unread")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
+        public ResponseEntity<List<NotificationResponseDTO>> getUnreadNotifications(
+                        @PathVariable Long userId) {
 
-        return ResponseEntity.ok(
-                notificationService
-                        .getUnreadNotifications(userId));
-    }
+                return ResponseEntity.ok(
+                                notificationService
+                                                .getUnreadNotifications(userId));
+        }
 
-    // =========================================================
-    // MARK NOTIFICATION AS READ
-    // =========================================================
+        // =========================================================
+        // MARK NOTIFICATION AS READ
+        // =========================================================
 
-    @PutMapping("/{notificationId}/read")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<NotificationResponseDTO> markAsRead(
-            @PathVariable Long notificationId) {
+        @PutMapping("/{notificationId}/read")
+        @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
+        public ResponseEntity<NotificationResponseDTO> markAsRead(
+                        @PathVariable Long notificationId) {
 
-        return ResponseEntity.ok(
-                notificationService
-                        .markAsRead(notificationId));
-    }
+                return ResponseEntity.ok(
+                                notificationService
+                                                .markAsRead(notificationId));
+        }
 }

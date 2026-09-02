@@ -32,13 +32,13 @@ public class SiteController {
     }
 
     // GET ALL SITES
-    @GetMapping("/sites")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
+        @GetMapping("/sites")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER', 'TECHNICIAN', 'CUSTOMER')")
+public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
 
-        return ResponseEntity.ok(
-                siteService.getAllSites());
-    }
+    return ResponseEntity.ok(
+            siteService.getAllSites());
+}
 
     // GET SITE BY ID
     @GetMapping("/sites/{id}")
