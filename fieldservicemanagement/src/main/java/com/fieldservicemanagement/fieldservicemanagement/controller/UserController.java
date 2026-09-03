@@ -12,8 +12,11 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api/users")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final UserService userService;
@@ -30,8 +33,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> createUser(
             @Valid @RequestBody UserRequestDTO requestDTO) {
 
-        UserResponseDTO responseDTO =
-                userService.createUser(requestDTO);
+        UserResponseDTO responseDTO = userService.createUser(requestDTO);
 
         return new ResponseEntity<>(
                 responseDTO,
