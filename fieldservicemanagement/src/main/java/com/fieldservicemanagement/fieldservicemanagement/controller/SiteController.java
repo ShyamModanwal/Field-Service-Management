@@ -19,7 +19,10 @@ public class SiteController {
     @Autowired
     private SiteService siteService;
 
+    // =========================================================
     // CREATE SITE
+    // =========================================================
+
     @PostMapping("/{customerId}/sites")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<SiteResponseDTO> createSite(
@@ -31,18 +34,24 @@ public class SiteController {
                 HttpStatus.CREATED);
     }
 
-    // GET ALL SITES
-        @GetMapping("/sites")
-@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER', 'TECHNICIAN', 'CUSTOMER')")
-public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
+    // =========================================================
+    // GET ALL / MY SITES
+    // =========================================================
 
-    return ResponseEntity.ok(
-            siteService.getAllSites());
-}
+    @GetMapping("/sites")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN', 'CUSTOMER')")
+    public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
 
+        return ResponseEntity.ok(
+                siteService.getAllSites());
+    }
+
+    // =========================================================
     // GET SITE BY ID
+    // =========================================================
+
     @GetMapping("/sites/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN', 'CUSTOMER')")
     public ResponseEntity<SiteResponseDTO> getSiteById(
             @PathVariable Long id) {
 
@@ -50,7 +59,10 @@ public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
                 siteService.getSiteById(id));
     }
 
+    // =========================================================
     // UPDATE SITE
+    // =========================================================
+
     @PutMapping("/sites/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<SiteResponseDTO> updateSite(
@@ -61,7 +73,10 @@ public ResponseEntity<List<SiteResponseDTO>> getAllSites() {
                 siteService.updateSite(id, requestDTO));
     }
 
+    // =========================================================
     // DELETE SITE
+    // =========================================================
+
     @DeleteMapping("/sites/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<String> deleteSite(
