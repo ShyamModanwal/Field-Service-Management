@@ -14,9 +14,21 @@ function Sites() {
   const [customerId, setCustomerId] = useState("");
 
   const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
 
   // =========================================================
-  // FETCH ALL SITES
+  // ROLE PERMISSION
+  // =========================================================
+
+  const canManageSites =
+    userRole === "ADMIN" ||
+    userRole === "MANAGER";
+
+  const isCustomer =
+    userRole === "CUSTOMER";
+
+  // =========================================================
+  // FETCH SITES
   // =========================================================
 
   const fetchSites = async () => {
@@ -29,16 +41,26 @@ function Sites() {
         "https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites",
         {
           method: "GET",
+
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
           }
         }
       );
 
-      if (response.status === 401 || response.status === 403) {
+      // =====================================================
+      // AUTH ERROR
+      // =====================================================
 
-        alert("Session expired. Please login again.");
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        alert(
+          "Session expired or you are not authorized."
+        );
 
         localStorage.clear();
 
@@ -52,7 +74,8 @@ function Sites() {
       if (!response.ok) {
 
         alert(
-          data.message || "Unable to fetch sites."
+          data.message ||
+          "Unable to fetch sites."
         );
 
         return;
@@ -62,7 +85,10 @@ function Sites() {
 
     } catch (error) {
 
-      console.error("Sites Error:", error);
+      console.error(
+        "Sites Error:",
+        error
+      );
 
       alert(
         "Unable to connect to Spring Boot server."
@@ -90,6 +116,15 @@ function Sites() {
 
   const openCreateForm = () => {
 
+    if (!canManageSites) {
+
+      alert(
+        "You are not authorized to create sites."
+      );
+
+      return;
+    }
+
     setEditingSite(null);
 
     setSiteName("");
@@ -105,10 +140,24 @@ function Sites() {
 
   const openEditForm = (site) => {
 
+    if (!canManageSites) {
+
+      alert(
+        "You are not authorized to edit sites."
+      );
+
+      return;
+    }
+
     setEditingSite(site);
 
-    setSiteName(site.siteName || "");
-    setAddress(site.address || "");
+    setSiteName(
+      site.siteName || ""
+    );
+
+    setAddress(
+      site.address || ""
+    );
 
     setCustomerId(
       site.customerId ||
@@ -142,23 +191,38 @@ function Sites() {
 
     event.preventDefault();
 
+    if (!canManageSites) {
+
+      alert(
+        "You are not authorized to manage sites."
+      );
+
+      return;
+    }
+
     if (!siteName.trim()) {
 
-      alert("Please enter site name.");
+      alert(
+        "Please enter site name."
+      );
 
       return;
     }
 
     if (!address.trim()) {
 
-      alert("Please enter site address.");
+      alert(
+        "Please enter site address."
+      );
 
       return;
     }
 
     if (!customerId) {
 
-      alert("Please enter customer ID.");
+      alert(
+        "Please enter customer ID."
+      );
 
       return;
     }
@@ -168,6 +232,10 @@ function Sites() {
       let url;
       let method;
 
+      // =====================================================
+      // UPDATE
+      // =====================================================
+
       if (editingSite) {
 
         url =
@@ -175,7 +243,13 @@ function Sites() {
 
         method = "PUT";
 
-      } else {
+      }
+
+      // =====================================================
+      // CREATE
+      // =====================================================
+
+      else {
 
         url =
           `https://confident-ambition-production-7bdb.up.railway.app/api/customers/${customerId}/sites`;
@@ -189,7 +263,7 @@ function Sites() {
           method: method,
 
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
           },
 
@@ -201,6 +275,18 @@ function Sites() {
       );
 
       const data = await response.json();
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        alert(
+          "You are not authorized to perform this action."
+        );
+
+        return;
+      }
 
       if (!response.ok) {
 
@@ -224,7 +310,10 @@ function Sites() {
 
     } catch (error) {
 
-      console.error("Save Site Error:", error);
+      console.error(
+        "Save Site Error:",
+        error
+      );
 
       alert(
         "Unable to connect to Spring Boot server."
@@ -238,9 +327,19 @@ function Sites() {
 
   const deleteSite = async (id) => {
 
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this site?"
-    );
+    if (!canManageSites) {
+
+      alert(
+        "You are not authorized to delete sites."
+      );
+
+      return;
+    }
+
+    const confirmDelete =
+      window.confirm(
+        "Are you sure you want to delete this site?"
+      );
 
     if (!confirmDelete) {
       return;
@@ -254,14 +353,32 @@ function Sites() {
           method: "DELETE",
 
           headers: {
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
 
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        alert(
+          "You are not authorized to delete this site."
+        );
+
+        return;
+      }
+
       if (!response.ok) {
 
-        const data = await response.json();
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          // No JSON response
+        }
 
         alert(
           data.message ||
@@ -271,13 +388,18 @@ function Sites() {
         return;
       }
 
-      alert("Site deleted successfully!");
+      alert(
+        "Site deleted successfully!"
+      );
 
       fetchSites();
 
     } catch (error) {
 
-      console.error("Delete Site Error:", error);
+      console.error(
+        "Delete Site Error:",
+        error
+      );
 
       alert(
         "Unable to connect to Spring Boot server."
@@ -293,16 +415,24 @@ function Sites() {
 
     <div className="sites-page">
 
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
       <header className="sites-header">
 
         <div>
 
-          <h1>Sites</h1>
+          <h1>
+            {isCustomer
+              ? "My Sites"
+              : "Sites"}
+          </h1>
 
           <p>
-            Manage customer service locations
+            {isCustomer
+              ? "View your registered service locations"
+              : "Manage customer service locations"}
           </p>
 
         </div>
@@ -317,23 +447,31 @@ function Sites() {
             ↻ Refresh
           </button>
 
-          <button
-            className="sites-add-button"
-            onClick={openCreateForm}
-          >
-            + Add Site
-          </button>
+          {canManageSites && (
+
+            <button
+              className="sites-add-button"
+              onClick={openCreateForm}
+            >
+              + Add Site
+            </button>
+
+          )}
 
         </div>
 
       </header>
 
 
-      {/* CONTENT */}
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
 
       <main className="sites-content">
 
-        {/* STAT */}
+        {/* ===================================================
+            STAT
+        =================================================== */}
 
         <div className="sites-stat-card">
 
@@ -343,7 +481,11 @@ function Sites() {
 
           <div>
 
-            <span>Total Sites</span>
+            <span>
+              {isCustomer
+                ? "My Sites"
+                : "Total Sites"}
+            </span>
 
             <strong>
               {sites.length}
@@ -354,13 +496,16 @@ function Sites() {
         </div>
 
 
-        {/* TABLE */}
+        {/* ===================================================
+            TABLE / LOADING / EMPTY
+        =================================================== */}
 
         {loading ? (
 
           <div className="sites-loading">
 
-            <div className="sites-loader"></div>
+            <div className="sites-loader">
+            </div>
 
             <p>
               Loading sites...
@@ -381,14 +526,20 @@ function Sites() {
             </h3>
 
             <p>
-              Create your first customer site.
+              {isCustomer
+                ? "No service locations are linked to your account."
+                : "Create your first customer site."}
             </p>
 
-            <button
-              onClick={openCreateForm}
-            >
-              + Add First Site
-            </button>
+            {canManageSites && (
+
+              <button
+                onClick={openCreateForm}
+              >
+                + Add First Site
+              </button>
+
+            )}
 
           </div>
 
@@ -404,15 +555,29 @@ function Sites() {
 
                   <tr>
 
-                    <th>ID</th>
+                    <th>
+                      ID
+                    </th>
 
-                    <th>Site Name</th>
+                    <th>
+                      Site Name
+                    </th>
 
-                    <th>Address</th>
+                    <th>
+                      Address
+                    </th>
 
-                    <th>Customer</th>
+                    <th>
+                      Customer
+                    </th>
 
-                    <th>Actions</th>
+                    {canManageSites && (
+
+                      <th>
+                        Actions
+                      </th>
+
+                    )}
 
                   </tr>
 
@@ -425,9 +590,11 @@ function Sites() {
                     <tr key={site.id}>
 
                       <td>
+
                         <span className="site-id">
                           #{site.id}
                         </span>
+
                       </td>
 
                       <td>
@@ -449,39 +616,45 @@ function Sites() {
                       <td>
 
                         <span className="customer-badge">
+
                           Customer #
                           {site.customerId ||
                             site.customer?.id ||
                             "N/A"}
+
                         </span>
 
                       </td>
 
-                      <td>
+                      {canManageSites && (
 
-                        <div className="site-actions">
+                        <td>
 
-                          <button
-                            className="edit-site-button"
-                            onClick={() =>
-                              openEditForm(site)
-                            }
-                          >
-                            Edit
-                          </button>
+                          <div className="site-actions">
 
-                          <button
-                            className="delete-site-button"
-                            onClick={() =>
-                              deleteSite(site.id)
-                            }
-                          >
-                            Delete
-                          </button>
+                            <button
+                              className="edit-site-button"
+                              onClick={() =>
+                                openEditForm(site)
+                              }
+                            >
+                              Edit
+                            </button>
 
-                        </div>
+                            <button
+                              className="delete-site-button"
+                              onClick={() =>
+                                deleteSite(site.id)
+                              }
+                            >
+                              Delete
+                            </button>
 
-                      </td>
+                          </div>
+
+                        </td>
+
+                      )}
 
                     </tr>
 
@@ -500,9 +673,11 @@ function Sites() {
       </main>
 
 
-      {/* CREATE / EDIT MODAL */}
+      {/* =====================================================
+          CREATE / EDIT MODAL
+      ===================================================== */}
 
-      {showForm && (
+      {showForm && canManageSites && (
 
         <div
           className="site-modal-overlay"
@@ -515,6 +690,10 @@ function Sites() {
               event.stopPropagation()
             }
           >
+
+            {/* =================================================
+                MODAL HEADER
+            ================================================= */}
 
             <div className="site-modal-header">
 
@@ -542,10 +721,18 @@ function Sites() {
             </div>
 
 
+            {/* =================================================
+                FORM
+            ================================================= */}
+
             <form
               className="site-form"
               onSubmit={handleSubmit}
             >
+
+              {/* =================================================
+                  SITE NAME
+              ================================================= */}
 
               <div className="site-form-group">
 
@@ -558,13 +745,19 @@ function Sites() {
                   placeholder="Enter site name"
                   value={siteName}
                   onChange={(event) =>
-                    setSiteName(event.target.value)
+                    setSiteName(
+                      event.target.value
+                    )
                   }
                   required
                 />
 
               </div>
 
+
+              {/* =================================================
+                  ADDRESS
+              ================================================= */}
 
               <div className="site-form-group">
 
@@ -576,7 +769,9 @@ function Sites() {
                   placeholder="Enter site address"
                   value={address}
                   onChange={(event) =>
-                    setAddress(event.target.value)
+                    setAddress(
+                      event.target.value
+                    )
                   }
                   rows="4"
                   required
@@ -584,6 +779,10 @@ function Sites() {
 
               </div>
 
+
+              {/* =================================================
+                  CUSTOMER ID
+              ================================================= */}
 
               <div className="site-form-group">
 
@@ -596,7 +795,9 @@ function Sites() {
                   placeholder="Enter customer ID"
                   value={customerId}
                   onChange={(event) =>
-                    setCustomerId(event.target.value)
+                    setCustomerId(
+                      event.target.value
+                    )
                   }
                   disabled={!!editingSite}
                   required
@@ -605,13 +806,18 @@ function Sites() {
                 {editingSite && (
 
                   <small>
-                    Customer cannot be changed while editing.
+                    Customer cannot be changed
+                    while editing.
                   </small>
 
                 )}
 
               </div>
 
+
+              {/* =================================================
+                  FORM ACTIONS
+              ================================================= */}
 
               <div className="site-form-actions">
 
