@@ -45,7 +45,7 @@ function TechnicianKanban() {
       );
 
       // =====================================================
-      // UNAUTHORIZED
+      // AUTH ERROR
       // =====================================================
 
       if (
@@ -73,7 +73,7 @@ function TechnicianKanban() {
 
         alert(
           data.message ||
-          "Unable to fetch work orders"
+          "Unable to fetch work orders."
         );
 
         return;
@@ -129,7 +129,7 @@ function TechnicianKanban() {
     let note = "";
 
     // =======================================================
-    // NOTES
+    // STATUS NOTES
     // =======================================================
 
     if (newStatus === "IN_PROGRESS") {
@@ -143,13 +143,15 @@ function TechnicianKanban() {
 
     else if (newStatus === "ON_HOLD") {
 
-      note = "Technician put the work on hold";
+      note =
+        "Technician put the work on hold";
 
     }
 
     else if (newStatus === "COMPLETED") {
 
-      note = "Technician completed the work";
+      note =
+        "Technician completed the work";
 
     }
 
@@ -196,7 +198,7 @@ function TechnicianKanban() {
 
         alert(
           data.message ||
-          "Unable to update work order status"
+          "Unable to update work order status."
         );
 
         return;
@@ -237,20 +239,31 @@ function TechnicianKanban() {
 
     return {
 
+      // -----------------------------------------------------
+      // IMPORTANT:
+      // Backend uses NEW for a newly created work order.
+      // For technician Kanban, NEW means ASSIGNED/READY TO START.
+      // -----------------------------------------------------
+
       ASSIGNED: workOrders.filter(
-        (item) => item.status === "ASSIGNED"
+        (item) =>
+          item.status === "ASSIGNED" ||
+          item.status === "NEW"
       ),
 
       IN_PROGRESS: workOrders.filter(
-        (item) => item.status === "IN_PROGRESS"
+        (item) =>
+          item.status === "IN_PROGRESS"
       ),
 
       ON_HOLD: workOrders.filter(
-        (item) => item.status === "ON_HOLD"
+        (item) =>
+          item.status === "ON_HOLD"
       ),
 
       COMPLETED: workOrders.filter(
-        (item) => item.status === "COMPLETED"
+        (item) =>
+          item.status === "COMPLETED"
       )
 
     };
@@ -268,6 +281,9 @@ function TechnicianKanban() {
       case "ASSIGNED":
         return "Assigned";
 
+      case "NEW":
+        return "Assigned";
+
       case "IN_PROGRESS":
         return "In Progress";
 
@@ -278,7 +294,7 @@ function TechnicianKanban() {
         return "Completed";
 
       default:
-        return status;
+        return status || "Unknown";
     }
   };
 
@@ -299,6 +315,9 @@ function TechnicianKanban() {
       case "LOW":
         return "tech-priority-low";
 
+      case "CRITICAL":
+        return "tech-priority-high";
+
       default:
         return "tech-priority-default";
     }
@@ -313,6 +332,9 @@ function TechnicianKanban() {
     switch (status) {
 
       case "ASSIGNED":
+        return "tech-status-assigned";
+
+      case "NEW":
         return "tech-status-assigned";
 
       case "IN_PROGRESS":
@@ -388,32 +410,50 @@ function TechnicianKanban() {
         <div className="tech-job-details">
 
           <div>
-            <span>Customer</span>
+
+            <span>
+              Customer
+            </span>
 
             <strong>
+
               {workOrder.customerId
                 ? `#${workOrder.customerId}`
                 : "N/A"}
+
             </strong>
+
           </div>
 
           <div>
-            <span>Site</span>
+
+            <span>
+              Site
+            </span>
 
             <strong>
+
               {workOrder.siteId
                 ? `#${workOrder.siteId}`
                 : "N/A"}
+
             </strong>
+
           </div>
 
           <div>
-            <span>SLA</span>
+
+            <span>
+              SLA
+            </span>
 
             <strong>
+
               {workOrder.slaDueAt ||
                 "Not specified"}
+
             </strong>
+
           </div>
 
         </div>
@@ -429,7 +469,11 @@ function TechnicianKanban() {
               workOrder.status
             )}`}
           >
-            {statusLabel(workOrder.status)}
+
+            {statusLabel(
+              workOrder.status
+            )}
+
           </span>
 
         </div>
@@ -440,13 +484,18 @@ function TechnicianKanban() {
 
         <div className="technician-actions">
 
-          {/* ASSIGNED → START */}
+          {/* =================================================
+              NEW / ASSIGNED → START JOB
+          ================================================= */}
 
-          {workOrder.status === "ASSIGNED" && (
+          {(workOrder.status === "ASSIGNED" ||
+            workOrder.status === "NEW") && (
 
             <button
               className="tech-action-start"
-              disabled={updatingId === workOrder.id}
+              disabled={
+                updatingId === workOrder.id
+              }
               onClick={() =>
                 updateStatus(
                   workOrder,
@@ -463,13 +512,17 @@ function TechnicianKanban() {
 
           )}
 
-          {/* IN PROGRESS → HOLD */}
+          {/* =================================================
+              IN PROGRESS → HOLD
+          ================================================= */}
 
           {workOrder.status === "IN_PROGRESS" && (
 
             <button
               className="tech-action-hold"
-              disabled={updatingId === workOrder.id}
+              disabled={
+                updatingId === workOrder.id
+              }
               onClick={() =>
                 updateStatus(
                   workOrder,
@@ -486,13 +539,17 @@ function TechnicianKanban() {
 
           )}
 
-          {/* IN PROGRESS → COMPLETE */}
+          {/* =================================================
+              IN PROGRESS → COMPLETE
+          ================================================= */}
 
           {workOrder.status === "IN_PROGRESS" && (
 
             <button
               className="tech-action-complete"
-              disabled={updatingId === workOrder.id}
+              disabled={
+                updatingId === workOrder.id
+              }
               onClick={() =>
                 updateStatus(
                   workOrder,
@@ -509,13 +566,17 @@ function TechnicianKanban() {
 
           )}
 
-          {/* ON HOLD → RESUME */}
+          {/* =================================================
+              ON HOLD → RESUME
+          ================================================= */}
 
           {workOrder.status === "ON_HOLD" && (
 
             <button
               className="tech-action-start"
-              disabled={updatingId === workOrder.id}
+              disabled={
+                updatingId === workOrder.id
+              }
               onClick={() =>
                 updateStatus(
                   workOrder,
@@ -585,6 +646,8 @@ function TechnicianKanban() {
 
       <div className="technician-summary">
 
+        {/* TOTAL */}
+
         <div className="tech-summary-card">
 
           <span>
@@ -596,6 +659,8 @@ function TechnicianKanban() {
           </strong>
 
         </div>
+
+        {/* ASSIGNED */}
 
         <div className="tech-summary-card">
 
@@ -609,6 +674,8 @@ function TechnicianKanban() {
 
         </div>
 
+        {/* IN PROGRESS */}
+
         <div className="tech-summary-card">
 
           <span>
@@ -621,6 +688,8 @@ function TechnicianKanban() {
 
         </div>
 
+        {/* ON HOLD */}
+
         <div className="tech-summary-card">
 
           <span>
@@ -632,6 +701,8 @@ function TechnicianKanban() {
           </strong>
 
         </div>
+
+        {/* COMPLETED */}
 
         <div className="tech-summary-card">
 
@@ -671,11 +742,15 @@ function TechnicianKanban() {
 
         <div className="technician-kanban">
 
-          {/* ASSIGNED */}
+          {/* =================================================
+              ASSIGNED
+          ================================================= */}
 
           <div className="kanban-column">
 
-            <div className="kanban-column-header assigned-header">
+            <div
+              className="kanban-column-header assigned-header"
+            >
 
               <div>
 
@@ -705,7 +780,9 @@ function TechnicianKanban() {
 
               ) : (
 
-                columns.ASSIGNED.map(renderCard)
+                columns.ASSIGNED.map(
+                  renderCard
+                )
 
               )}
 
@@ -713,11 +790,15 @@ function TechnicianKanban() {
 
           </div>
 
-          {/* IN PROGRESS */}
+          {/* =================================================
+              IN PROGRESS
+          ================================================= */}
 
           <div className="kanban-column">
 
-            <div className="kanban-column-header progress-header">
+            <div
+              className="kanban-column-header progress-header"
+            >
 
               <div>
 
@@ -747,7 +828,9 @@ function TechnicianKanban() {
 
               ) : (
 
-                columns.IN_PROGRESS.map(renderCard)
+                columns.IN_PROGRESS.map(
+                  renderCard
+                )
 
               )}
 
@@ -755,11 +838,15 @@ function TechnicianKanban() {
 
           </div>
 
-          {/* ON HOLD */}
+          {/* =================================================
+              ON HOLD
+          ================================================= */}
 
           <div className="kanban-column">
 
-            <div className="kanban-column-header hold-header">
+            <div
+              className="kanban-column-header hold-header"
+            >
 
               <div>
 
@@ -789,7 +876,9 @@ function TechnicianKanban() {
 
               ) : (
 
-                columns.ON_HOLD.map(renderCard)
+                columns.ON_HOLD.map(
+                  renderCard
+                )
 
               )}
 
@@ -797,11 +886,15 @@ function TechnicianKanban() {
 
           </div>
 
-          {/* COMPLETED */}
+          {/* =================================================
+              COMPLETED
+          ================================================= */}
 
           <div className="kanban-column">
 
-            <div className="kanban-column-header completed-header">
+            <div
+              className="kanban-column-header completed-header"
+            >
 
               <div>
 
@@ -831,7 +924,9 @@ function TechnicianKanban() {
 
               ) : (
 
-                columns.COMPLETED.map(renderCard)
+                columns.COMPLETED.map(
+                  renderCard
+                )
 
               )}
 
