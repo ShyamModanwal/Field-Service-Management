@@ -37,10 +37,11 @@ public class WorkOrderController {
 
     // =========================================================
     // GET ALL WORK ORDERS
+    // ADMIN / MANAGER / DISPATCHER / TECHNICIAN / CUSTOMER
     // =========================================================
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER', 'TECHNICIAN', 'CUSTOMER')")
     public List<WorkOrderResponseDTO> getAllWorkOrders() {
 
         return workOrderService.getAllWorkOrders();
@@ -63,7 +64,7 @@ public class WorkOrderController {
     // =========================================================
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER', 'TECHNICIAN', 'CUSTOMER')")
     public WorkOrderResponseDTO getWorkOrderById(
             @PathVariable Long id) {
 
@@ -119,12 +120,13 @@ public class WorkOrderController {
     // =========================================================
 
     @GetMapping("/{id}/history")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'TECHNICIAN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER', 'TECHNICIAN', 'CUSTOMER')")
     public List<WorkOrderStatusHistoryResponseDTO> getWorkOrderStatusHistory(
             @PathVariable Long id) {
 
         return workOrderService.getWorkOrderStatusHistory(id);
     }
+
     // =========================================================
     // ASSIGN WORK ORDER TO TECHNICIAN
     // =========================================================
