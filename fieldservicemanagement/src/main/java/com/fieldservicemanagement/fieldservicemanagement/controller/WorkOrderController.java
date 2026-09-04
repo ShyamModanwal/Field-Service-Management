@@ -28,7 +28,7 @@ public class WorkOrderController {
     // =========================================================
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DISPATCHER')")
     public WorkOrderResponseDTO createWorkOrder(
             @RequestBody WorkOrderRequestDTO requestDTO) {
 

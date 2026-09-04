@@ -124,7 +124,7 @@ public class SecurityConfig {
 
                                                 // User registration
                                                 .requestMatchers("/api/users")
-                                                .hasRole("ADMIN")
+                                                .hasAnyRole("ADMIN", "MANAGER", "DISPATCHER")
                                                 // Everything else requires JWT
                                                 .anyRequest().authenticated())
 
