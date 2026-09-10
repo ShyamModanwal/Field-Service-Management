@@ -38,7 +38,7 @@ function Sites() {
     try {
 
       const response = await fetch(
-        "https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites",
+        "https://field-service-management-production-86f5.up.railway.app/api/customers/sites",
         {
           method: "GET",
 
@@ -239,7 +239,7 @@ function Sites() {
       if (editingSite) {
 
         url =
-          `https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites/${editingSite.id}`;
+          `https://field-service-management-production-86f5.up.railway.app/api/customers/sites/${editingSite.id}`;
 
         method = "PUT";
 
@@ -252,7 +252,7 @@ function Sites() {
       else {
 
         url =
-          `https://confident-ambition-production-7bdb.up.railway.app/api/customers/${customerId}/sites`;
+          `https://field-service-management-production-86f5.up.railway.app/api/customers/${customerId}/sites`;
 
         method = "POST";
       }
@@ -348,7 +348,7 @@ function Sites() {
     try {
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites/${id}`,
+        `https://field-service-management-production-86f5.up.railway.app/api/customers/sites/${id}`,
         {
           method: "DELETE",
 

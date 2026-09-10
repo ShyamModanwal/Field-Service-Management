@@ -33,7 +33,7 @@ function Parts() {
     try {
 
       const response = await fetch(
-        "https://confident-ambition-production-7bdb.up.railway.app/api/parts",
+        "https://field-service-management-production-86f5.up.railway.app/api/parts",
         {
           method: "GET",
 
@@ -263,8 +263,8 @@ function Parts() {
     try {
 
       const url = editingPart
-        ? `https://confident-ambition-production-7bdb.up.railway.app/api/parts/${editingPart.id}`
-        : "https://confident-ambition-production-7bdb.up.railway.app/api/parts";
+        ? `https://field-service-management-production-86f5.up.railway.app/api/parts/${editingPart.id}`
+        : "https://field-service-management-production-86f5.up.railway.app/api/parts";
 
 
       const method = editingPart
@@ -345,7 +345,7 @@ function Parts() {
     try {
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/parts/${id}`,
+        `https://field-service-management-production-86f5.up.railway.app/api/parts/${id}`,
         {
           method: "DELETE",
 

@@ -38,15 +38,15 @@ function CreateWorkOrder({ onBack, onCreated }) {
 
       const [customerResponse, siteResponse, userResponse] =
         await Promise.all([
-          fetch("https://confident-ambition-production-7bdb.up.railway.app/api/customers", {
+          fetch("https://field-service-management-production-86f5.up.railway.app/api/customers", {
             headers
           }),
 
-          fetch("https://confident-ambition-production-7bdb.up.railway.app/api/customers/sites", {
+          fetch("https://field-service-management-production-86f5.up.railway.app/api/customers/sites", {
             headers
           }),
 
-          fetch("https://confident-ambition-production-7bdb.up.railway.app/api/users", {
+          fetch("https://field-service-management-production-86f5.up.railway.app/api/users", {
             headers
           })
         ]);
@@ -140,7 +140,7 @@ function CreateWorkOrder({ onBack, onCreated }) {
       };
 
       const response = await fetch(
-        "https://confident-ambition-production-7bdb.up.railway.app/api/work-orders",
+        "https://field-service-management-production-86f5.up.railway.app/api/work-orders",
         {
           method: "POST",
 

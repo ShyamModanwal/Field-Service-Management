@@ -22,7 +22,7 @@ function Notifications() {
       }
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/notifications/user/${userId}`,
+        `https://field-service-management-production-86f5.up.railway.app/api/notifications/user/${userId}`,
         {
           method: "GET",
           headers: {
@@ -86,7 +86,7 @@ function Notifications() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/notifications/${notificationId}/read`,
+        `https://field-service-management-production-86f5.up.railway.app/api/notifications/${notificationId}/read`,
         {
           method: "PUT",
           headers: {

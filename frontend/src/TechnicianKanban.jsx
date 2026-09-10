@@ -33,7 +33,7 @@ function TechnicianKanban() {
       }
 
       const response = await fetch(
-        "https://confident-ambition-production-7bdb.up.railway.app/api/work-orders",
+        "https://field-service-management-production-86f5.up.railway.app/api/work-orders",
         {
           method: "GET",
 
@@ -160,7 +160,7 @@ function TechnicianKanban() {
       setUpdatingId(workOrder.id);
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/work-orders/${workOrder.id}/status`,
+        `https://field-service-management-production-86f5.up.railway.app/api/work-orders/${workOrder.id}/status`,
         {
           method: "POST",
 

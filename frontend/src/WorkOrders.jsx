@@ -30,7 +30,7 @@ function WorkOrders() {
       }
 
       const response = await fetch(
-        "https://confident-ambition-production-7bdb.up.railway.app/api/work-orders",
+        "https://field-service-management-production-86f5.up.railway.app/api/work-orders",
         {
           method: "GET",
           headers: {
@@ -132,7 +132,7 @@ function WorkOrders() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `https://confident-ambition-production-7bdb.up.railway.app/api/work-orders/${workOrder.id}/history`,
+        `https://field-service-management-production-86f5.up.railway.app/api/work-orders/${workOrder.id}/history`,
         {
           method: "GET",
           headers: {
